@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AI.MazeSolver.Types;
 using UnityEngine;
 
 namespace AI.MazeSolver.Services
@@ -20,7 +21,10 @@ namespace AI.MazeSolver.Services
             var source = new Vector2Int(state.axie.mapX, state.axie.mapY);
             var destination = GetEndPoint(map);
             Debug.Log($"Solve on floor {state.currentFloorIdx}, source={source.x},{source.y}");
-            Bfs(map, items, doors, source, destination);
+            var path = Bfs(map, items, doors, source, destination);
+            string log = "";
+            foreach (var pos in path) log += $"({pos.x},{pos.y}) -> ";
+            Debug.Log(log);
         }
 
         private Vector2Int GetEndPoint(List<List<int>> map)
@@ -48,7 +52,26 @@ namespace AI.MazeSolver.Services
             SolveState(sampleState);
         }
 
-        private void Bfs(List<List<int>> map, List<ItemState> items, List<DoorState> doors, Vector2Int source, Vector2Int destination)
+        private List<Vector2Int> TracePath(List<List<Vector2Int>> trace, Vector2Int source, Vector2Int destination)
+        {
+            Vector2Int pos = destination;
+            List<Vector2Int> path = new List<Vector2Int>();
+            while (pos.x != source.x && pos.y != source.y)
+            {
+                path.Add(pos);
+                pos = trace[pos.y][pos.x];
+            }
+            path.Add(source);
+
+            return path;
+        }
+        
+        private List<Vector2Int> Bfs(
+            List<List<int>> map, 
+            List<ItemState> items, 
+            List<DoorState> doors, 
+            Vector2Int source, 
+            Vector2Int destination)
         {
             Debug.Log($"Start from {source.x},{source.y}");
             var visited = new List<List<bool>>();
@@ -62,18 +85,39 @@ namespace AI.MazeSolver.Services
                 visited.Add(row);
             }
 
-            Queue<Vector2Int> queue = new Queue<Vector2Int>();
-            queue.Enqueue(source);
+            var trace = new List<List<Vector2Int>>();
+            for (int y = 0; y < MazeState.MAP_SIZE; ++y)
+            {
+                var row = new List<Vector2Int>();
+                for (int x = 0; x < MazeState.MAP_SIZE; ++x)
+                {
+                    row.Add(new Vector2Int(-1, -1));
+                }
+                trace.Add(row);
+            }
+
+            Queue<MazeCell> queue = new Queue<MazeCell>();
+            queue.Enqueue(new MazeCell() { Position = source });
+            List<Vector2Int> path = new List<Vector2Int>();
             while (queue.Count > 0)
             {
-                var pos = queue.Dequeue();
+                var cell = queue.Dequeue();
+                var pos = cell.Position;
                 if (!IsValid(map, pos)) continue;
                 if (visited[pos.y][pos.x]) continue;
                 if (pos.Equals(destination))
                 {
                     Debug.Log("Escaped");
-                    return;
+                    cell.Path.Add(pos);
+                    var logP = "";
+                    foreach (var p in cell.Path) logP += $"{p.x},{p.y} -> ";
+                    Debug.Log(logP);
+                    path = cell.Path;
+                    break;
                 }
+                
+                visited[pos.y][pos.x] = true;
+                cell.Path.Add(pos);
                 
                 // If there is a key
                 int cellCode = GetRoomValue(map, pos);
@@ -108,7 +152,8 @@ namespace AI.MazeSolver.Services
                         Debug.Log($"Try key {keyObject.code} on door {doorCode}");
                         
                         // Try to find way from here
-                        Bfs(map, items, doors, pos, destination);
+                        var subPath = Bfs(map, items, doors, pos, destination);
+                        // path.AddRange(subPath);
                         
                         // Backtracking, rewind everything
                         keyObject.available = true;
@@ -117,21 +162,22 @@ namespace AI.MazeSolver.Services
                         map[door.colMapY][door.colMapX] = doorCode;
                     }
                 }
-
-                visited[pos.y][pos.x] = true;
-
+                
                 foreach (var d in Directions)
                 {
                     var newPos = pos + d;
                     if (!IsValid(map, newPos)) continue;
+                    if (visited[newPos.y][newPos.x]) continue;
                     var checkMove = CheckMoveResult(map, pos, d);
                     // Debug.Log("Check move result: " + checkMove);
                     if (checkMove != MoveResult.Valid) continue;
+                    trace[newPos.y][newPos.x] = pos;
                     // Debug.Log($"Source {source.x},{source.y}, From {pos.x},{pos.y}: Visit {newPos.x},{newPos.y}");
-
-                    queue.Enqueue(newPos);
+                    queue.Enqueue(new MazeCell() { Position = newPos, Path = cell.Path });
                 }
             }
+
+            return path;
         }
 
         private MoveResult CheckMoveResult(List<List<int>> map, Vector2Int currentPosition, Vector2Int delta)
