@@ -4,10 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5ab135b-079a-420d-ad0a-1a8dac2cc583" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.axie-game-unity-test-01/.idea/.gitignore" beforeDir="false" />
+    <list default="true" id="f5ab135b-079a-420d-ad0a-1a8dac2cc583" name="Changes" comment="[Feat] Integrate algorithm into scene">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.axie-game-unity-test-01/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.axie-game-unity-test-01/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InitTestScene638475032844614457.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/InitTestScene638475032844614457.unity.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Test.unity" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Test.unity.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameMaze/GameMazeManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameMaze/GameMazeManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeSolver.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeSolver.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types/Types.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types/Types.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestScript.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TestScript.cs.meta" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,8 +31,8 @@
     <setting file="mock://D:/Projects/Unity/axie-game-unity-test-01/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://D:/Projects/Unity/axie-game-unity-test-01/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Utils/MazeSolverUtils.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="mock://D:/Projects/Unity/axie-game-unity-test-01/Assets/Scripts/GameMaze/GameMazeManager.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/TestScript.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -106,7 +116,7 @@
       <updated>1711818807612</updated>
       <workItem from="1711818811613" duration="50724000" />
       <workItem from="1712073967612" duration="13614000" />
-      <workItem from="1712148757895" duration="15160000" />
+      <workItem from="1712148757895" duration="17294000" />
     </task>
     <task id="LOCAL-00001" summary="[Feat] Maze solving algorithm">
       <option name="closed" value="true" />
@@ -124,7 +134,15 @@
       <option name="project" value="LOCAL" />
       <updated>1712087119051</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="[Feat] Integrate algorithm into scene">
+      <option name="closed" value="true" />
+      <created>1712166798590</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1712166798590</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -148,6 +166,7 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="[Feat] Maze solving algorithm" />
     <MESSAGE value="[Feat] Update Maze solving algorithm (path trace)" />
-    <option name="LAST_COMMIT_MESSAGE" value="[Feat] Update Maze solving algorithm (path trace)" />
+    <MESSAGE value="[Feat] Integrate algorithm into scene" />
+    <option name="LAST_COMMIT_MESSAGE" value="[Feat] Integrate algorithm into scene" />
   </component>
 </project>
