@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AI.MazeSolver.Services;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -80,7 +81,7 @@ public class GameMazeManager : MonoBehaviour
     {
         this.mazeState.currentFloorIdx = idx;
         var floorMap = this.mazeState.floors[this.mazeState.currentFloorIdx];
-
+        
         foreach (var p in pools)
         {
             foreach (var q in p.Value)
@@ -320,38 +321,8 @@ public class GameMazeManager : MonoBehaviour
     //***************YOUR CODE HERE**************************/
     void OnSimulateTurn()
     {
-        //Do you check and give the action to reach the goal
-        var floorMap = this.mazeState.floors[this.mazeState.currentFloorIdx];
-        Vector2Int targetPos = Vector2Int.zero;
-        for (int y = 0; y < MazeState.MAP_SIZE; y++)
-        {
-            for (int x = 0; x < MazeState.MAP_SIZE; x++)
-            {
-                int roomVal = this.mazeState.GetRoomValue(x, y);
-                if (roomVal == MazeState.MAP_CODE_END)
-                {
-                    targetPos = new Vector2Int(x, y); 
-                }
-            }
-        }
-
-        Debug.Log($"curPos: {mazeState.axie.mapX},{mazeState.axie.mapY} targetPos: {targetPos.x},{targetPos.y} Item remain: {floorMap.itemStates.Count}");
-        int ranVal = Random.Range(0, 4);
-        if (ranVal == 0 && mazeState.TestMove(-1, 0) == MoveResult.Valid)
-        {
-            this.MoveAxie(-1, 0);
-        }
-        else if (ranVal == 1 && mazeState.TestMove(1, 0) == MoveResult.Valid)
-        {
-            this.MoveAxie(1, 0);
-        }
-        else if (ranVal == 2 && mazeState.TestMove(0, -1) == MoveResult.Valid)
-        {
-            this.MoveAxie(0, -1);
-        }
-        else if (ranVal == 3 && mazeState.TestMove(0, 1) == MoveResult.Valid)
-        {
-            this.MoveAxie(0, 1);
-        }
+        MazeBrain.Instance.ScheduleUpdate(this);
+        var delta = MazeBrain.Instance.SolveState(mazeState);
+        MoveAxie(delta.x, delta.y);
     }
 }

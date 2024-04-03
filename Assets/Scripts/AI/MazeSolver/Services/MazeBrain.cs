@@ -1,30 +1,79 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using AI.MazeSolver.Types;
 using UnityEngine;
 
 namespace AI.MazeSolver.Services
 {
-    public class MazeBrain : MonoBehaviour
+    public class MazeBrain
     {
+        public GameMazeManager MazeManager { get; set; }
+        public static MazeBrain Instance => _instance ??= new MazeBrain();
+        
+        private static MazeBrain _instance;
         private static readonly Vector2Int[] Directions =
             { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         
-        private MazeState mazeState;
-
-        public void SolveState(MazeState state)
+        private Coroutine updateCoroutine = null;
+        
+        List<Vector2Int> cachedResults;
+        private int cachedMazeFloorIndex = -1;
+        private int currentActionIndex;
+        
+        public Vector2Int SolveState(MazeState mazeState)
         {
-            mazeState = CloneState(state);
+            var state = CloneState(mazeState);
+            if (cachedMazeFloorIndex == state.currentFloorIdx && cachedResults != null) 
+                return currentActionIndex < cachedResults.Count ? cachedResults[currentActionIndex++] : Vector2Int.zero;
+            
             var map = state.floors[state.currentFloorIdx].map;
             var items = state.floors[state.currentFloorIdx].itemStates;
             var doors = state.floors[state.currentFloorIdx].doorStates;
             var source = new Vector2Int(state.axie.mapX, state.axie.mapY);
             var destination = GetEndPoint(map);
+            var ownedItems = state.axie.consumableItems;
             Debug.Log($"Solve on floor {state.currentFloorIdx}, source={source.x},{source.y}");
-            var path = Bfs(map, items, doors, source, destination);
+            List<Vector2Int> path = Bfs(map, items, doors, ownedItems, source, destination);
+
+            #region Debug log
             string log = "";
             foreach (var pos in path) log += $"({pos.x},{pos.y}) -> ";
             Debug.Log(log);
+
+            var actions = ConvertPathToActions(mazeState.floors[mazeState.currentFloorIdx].map, path);
+            log = "";
+            foreach (var d in actions) log += $"({d.x},{d.y}) -> ";
+            Debug.Log(log);
+            #endregion
+
+            cachedResults = actions;
+            cachedMazeFloorIndex = state.currentFloorIdx;
+            currentActionIndex = 1;
+
+            return actions[0];
+        }
+
+        private List<Vector2Int> ConvertPathToActions(List<List<int>> map, List<Vector2Int> path)
+        {
+            List<Vector2Int> result = new List<Vector2Int>();   
+            for (int i = 0; i < path.Count - 1; ++i)
+            {
+                // (-1, -1) is after axie picked a key
+                if (path[i + 1].Equals(-Vector2Int.one) || path[i].Equals(-Vector2Int.one)) continue;
+                Vector2Int delta = path[i + 1] - path[i];
+                result.Add(delta);
+                
+                // If axie go through a door, he needs to move 2 time (one to use key, one to move)
+                var moveResult = CheckMoveResult(map, path[i], delta);
+                if (moveResult == MoveResult.Require_Key_A || moveResult == MoveResult.Require_Key_B)
+                {
+                    Debug.Log($"Double move due to door: {path[i].x},{path[i].y} -> {path[i + 1].y},{path[i + 1].y}");
+                    result.Add(delta);
+                }
+            }
+
+            return result;
         }
 
         private Vector2Int GetEndPoint(List<List<int>> map)
@@ -41,27 +90,47 @@ namespace AI.MazeSolver.Services
 
             return Vector2Int.zero;
         }
-        
-        private void Start()
+
+        public void ScheduleUpdate(MonoBehaviour monoBehaviour)
         {
-            var sampleState = new MazeState();
-            sampleState.LoadMaps(MapPool.FLOOR_MAPS);
-            sampleState.currentFloorIdx = 2;
-            sampleState.axie.mapX = 0;
-            sampleState.axie.mapY = 3;
-            SolveState(sampleState);
+            if (updateCoroutine != null) return;
+            updateCoroutine = monoBehaviour.StartCoroutine(UpdateSimulation());
+        }
+
+        private void ResetCache()
+        {
+            cachedMazeFloorIndex = -1;
+        }
+        
+        private void Update()
+        {
+            if (Input.anyKeyDown)
+            {
+                Debug.Log("[Maze Brain]: User takes control, discard all computation");
+                ResetCache();
+            }
+        }
+        
+        private IEnumerator UpdateSimulation()
+        {
+            while (true)
+            {
+                Update();
+                yield return null;
+            }
         }
 
         private List<Vector2Int> TracePath(List<List<Vector2Int>> trace, Vector2Int source, Vector2Int destination)
         {
             Vector2Int pos = destination;
             List<Vector2Int> path = new List<Vector2Int>();
-            while (pos.x != source.x && pos.y != source.y)
+            while (pos.x != source.x || pos.y != source.y)
             {
                 path.Add(pos);
                 pos = trace[pos.y][pos.x];
             }
             path.Add(source);
+            path.Reverse();
 
             return path;
         }
@@ -70,6 +139,7 @@ namespace AI.MazeSolver.Services
             List<List<int>> map, 
             List<ItemState> items, 
             List<DoorState> doors, 
+            Dictionary<string, int> ownedItems,
             Vector2Int source, 
             Vector2Int destination)
         {
@@ -108,12 +178,8 @@ namespace AI.MazeSolver.Services
                 if (pos.Equals(destination))
                 {
                     Debug.Log("Escaped");
-                    cell.Path.Add(pos);
-                    var logP = "";
-                    foreach (var p in cell.Path) logP += $"{p.x},{p.y} -> ";
-                    Debug.Log(logP);
-                    path = cell.Path;
-                    break;
+                    path = TracePath(trace, source, destination);
+                    return path;
                 }
                 
                 visited[pos.y][pos.x] = true;
@@ -152,8 +218,17 @@ namespace AI.MazeSolver.Services
                         Debug.Log($"Try key {keyObject.code} on door {doorCode}");
                         
                         // Try to find way from here
-                        var subPath = Bfs(map, items, doors, pos, destination);
-                        // path.AddRange(subPath);
+                        var subPath = Bfs(map, items, doors, new Dictionary<string, int>(ownedItems), pos, destination);
+                        
+                        // If this way can reach the final destination
+                        if (subPath.Count > 0)
+                        {
+                            // Concat path from first source to this position and path from this position to final destination
+                            path = TracePath(trace, source, pos);
+                            path.Add(new Vector2Int(-1, -1));
+                            path.AddRange(subPath);
+                            return path;
+                        }
                         
                         // Backtracking, rewind everything
                         keyObject.available = true;
@@ -162,15 +237,30 @@ namespace AI.MazeSolver.Services
                         map[door.colMapY][door.colMapX] = doorCode;
                     }
                 }
-                
+
                 foreach (var d in Directions)
                 {
                     var newPos = pos + d;
                     if (!IsValid(map, newPos)) continue;
                     if (visited[newPos.y][newPos.x]) continue;
                     var checkMove = CheckMoveResult(map, pos, d);
-                    // Debug.Log("Check move result: " + checkMove);
-                    if (checkMove != MoveResult.Valid) continue;
+                    if (checkMove == MoveResult.Invalid) continue;
+
+                    // Collide with doors, try using current own keys
+                    var doorPos = GetDoorPosition(map, pos, d);
+                    if (checkMove == MoveResult.Require_Key_A)
+                    {
+                        if (!ownedItems.ContainsKey("key-a") || ownedItems["key-a"] <= 0) continue;
+                        map[doorPos.y][doorPos.x] = MazeState.MAP_CODE_CLEAR;
+                        ownedItems["key-a"]--;
+                    }
+                    else if (checkMove == MoveResult.Require_Key_B)
+                    {
+                        if (!ownedItems.ContainsKey("key-b") || ownedItems["key-b"] <= 0) continue;
+                        map[doorPos.y][doorPos.x] = MazeState.MAP_CODE_CLEAR;
+                        ownedItems["key-b"]--;
+                    }
+
                     trace[newPos.y][newPos.x] = pos;
                     // Debug.Log($"Source {source.x},{source.y}, From {pos.x},{pos.y}: Visit {newPos.x},{newPos.y}");
                     queue.Enqueue(new MazeCell() { Position = newPos, Path = cell.Path });
@@ -221,6 +311,25 @@ namespace AI.MazeSolver.Services
             }
             
             return wallVal;
+        }
+        
+        private Vector2Int GetDoorPosition(List<List<int>> map, Vector2Int currentPosition, Vector2Int delta)
+        {
+            int dx = delta.x;
+            int dy = delta.y;
+            int colMapX, colMapY;
+            if (dx != 0)
+            {
+                colMapX = (currentPosition.x + (dx == 1 ? 1 : 0)) * 2;
+                colMapY = currentPosition.y * 2 + 1;
+            }
+            else
+            {
+                colMapX = currentPosition.x * 2 + 1;
+                colMapY = (currentPosition.y + (dy == 1 ? 1 : 0)) * 2;
+            }
+
+            return new Vector2Int(colMapX, colMapY);
         }
 
         private Vector2Int ToRoomPosition(int x, int y)
