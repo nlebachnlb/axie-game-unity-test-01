@@ -4,20 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f5ab135b-079a-420d-ad0a-1a8dac2cc583" name="Changes" comment="[Feat] Integrate algorithm into scene">
+    <list default="true" id="f5ab135b-079a-420d-ad0a-1a8dac2cc583" name="Changes" comment="[Feat] Code Refactor">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.axie-game-unity-test-01/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.axie-game-unity-test-01/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InitTestScene638475032844614457.unity" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/InitTestScene638475032844614457.unity.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Test.unity" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Test.unity.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeSolver.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeSolver.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types/Types.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Types/Types.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestScript.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TestScript.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/AI/MazeSolver/Services/MazeBrain.cs.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameMaze/GameMazeManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameMaze/GameMazeManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +109,7 @@
       <updated>1711818807612</updated>
       <workItem from="1711818811613" duration="50724000" />
       <workItem from="1712073967612" duration="13614000" />
-      <workItem from="1712148757895" duration="17294000" />
+      <workItem from="1712148757895" duration="20627000" />
     </task>
     <task id="LOCAL-00001" summary="[Feat] Maze solving algorithm">
       <option name="closed" value="true" />
@@ -142,7 +135,23 @@
       <option name="project" value="LOCAL" />
       <updated>1712166798590</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="[Feat] Code refactor">
+      <option name="closed" value="true" />
+      <created>1712168696911</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1712168696911</updated>
+    </task>
+    <task id="LOCAL-00005" summary="[Feat] Code Refactor">
+      <option name="closed" value="true" />
+      <created>1712170626864</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1712170626864</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -167,6 +176,8 @@
     <MESSAGE value="[Feat] Maze solving algorithm" />
     <MESSAGE value="[Feat] Update Maze solving algorithm (path trace)" />
     <MESSAGE value="[Feat] Integrate algorithm into scene" />
-    <option name="LAST_COMMIT_MESSAGE" value="[Feat] Integrate algorithm into scene" />
+    <MESSAGE value="[Feat] Code refactor" />
+    <MESSAGE value="[Feat] Code Refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="[Feat] Code Refactor" />
   </component>
 </project>
