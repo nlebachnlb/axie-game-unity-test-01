@@ -32,7 +32,7 @@ namespace AI.MazeSolver.Services
             var source = new Vector2Int(state.axie.mapX, state.axie.mapY);
             var destination = MazeSolverUtils.GetEndPoint(map);
             var ownedItems = state.axie.consumableItems;
-            Debug.Log($"Solve on floor {state.currentFloorIdx}, source={source.x},{source.y}");
+            Debug.Log($"[MazeBrain] Solve on floor {state.currentFloorIdx}, source={source.x},{source.y}");
             var path = Bfs(map, items, doors, ownedItems, source, destination);
             var actions = MazeSolverUtils.ConvertPathToActions(mazeState.floors[mazeState.currentFloorIdx].map, path);
 
@@ -92,52 +92,42 @@ namespace AI.MazeSolver.Services
             Vector2Int source, 
             Vector2Int destination)
         {
-            Debug.Log($"Start from {source.x},{source.y}");
-            var visited = new List<List<bool>>();
-            for (int y = 0; y < MazeState.MAP_SIZE; ++y)
-            {
-                var row = new List<bool>();
-                for (int x = 0; x < MazeState.MAP_SIZE; ++x)
-                {
-                    row.Add(false);
-                }
-                visited.Add(row);
-            }
+            Debug.Log($"[MazeBrain] Start from {source.x},{source.y}");
+            var visited = new HashSet<(int, int)>();
 
             var trace = new List<List<Vector2Int>>();
             for (int y = 0; y < MazeState.MAP_SIZE; ++y)
             {
                 var row = new List<Vector2Int>();
                 for (int x = 0; x < MazeState.MAP_SIZE; ++x)
-                {
                     row.Add(new Vector2Int(-1, -1));
-                }
                 trace.Add(row);
             }
 
             Queue<Vector2Int> queue = new Queue<Vector2Int>();
-            queue.Enqueue(source);
             List<Vector2Int> path = new List<Vector2Int>();
+            queue.Enqueue(source);
+
             while (queue.Count > 0)
             {
                 var pos = queue.Dequeue();
                 if (!MazeSolverUtils.IsValid(map, pos)) continue;
-                if (visited[pos.y][pos.x]) continue;
+                if (visited.Contains((pos.y, pos.x))) continue;
                 if (pos.Equals(destination))
                 {
-                    Debug.Log("Escaped");
+                    Debug.Log("[MazeBrain] Escaped");
                     path = MazeSolverUtils.TracePath(trace, source, destination);
                     return path;
                 }
                 
-                visited[pos.y][pos.x] = true;
+                visited.Add((pos.y, pos.x));
                 
                 // If there is a key
                 int cellCode = MazeSolverUtils.GetRoomValue(map, pos);
                 if (cellCode == MazeState.MAP_CODE_KEY_A || cellCode == MazeState.MAP_CODE_KEY_B)
                 {
                     // Pick the key, then try another path, then backtrack to here and conclude
-                    Debug.Log($"Pick key {cellCode}");
+                    Debug.Log($"[MazeBrain] Pick key {cellCode}");
                     var keyObject = items.Find(item =>
                         item.code == cellCode &&
                         item.mapX == pos.x &&
@@ -162,7 +152,7 @@ namespace AI.MazeSolver.Services
                         map[keyRoomPos.y][keyRoomPos.x] = MazeState.MAP_CODE_CLEAR;
                         map[door.colMapY][door.colMapX] = MazeState.MAP_CODE_CLEAR;
                         
-                        Debug.Log($"Try key {keyObject.code} on door {doorCode}");
+                        Debug.Log($"[MazeBrain] Try key {keyObject.code} on door {doorCode}");
                         
                         // Try to find way from here
                         var subPath = Bfs(map, items, doors, new Dictionary<string, int>(ownedItems), pos, destination);
@@ -189,7 +179,7 @@ namespace AI.MazeSolver.Services
                 {
                     var newPos = pos + d;
                     if (!MazeSolverUtils.IsValid(map, newPos)) continue;
-                    if (visited[newPos.y][newPos.x]) continue;
+                    if (visited.Contains((newPos.y, newPos.x))) continue;
                     var checkMove = MazeSolverUtils.CheckMoveResult(map, pos, d);
                     if (checkMove == MoveResult.Invalid) continue;
 
